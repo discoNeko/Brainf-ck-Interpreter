@@ -1,0 +1,141 @@
+
+<html><head><title>Brainf*ck</title>
+<b>Brainf*ck インタプリタ</b><br><br>
+<script>
+
+function clearSrc(){
+	var str = document.getElementById ('src');
+	str.value = '';
+}
+
+function interp(){
+var i = 0;
+var pos = 0;
+var memory = new Array();
+var latest = 0;
+var hit = 0;
+var tmp = "";
+
+var str = document.getElementById ('src');
+var calc = document.getElementById ('result');
+
+tmp = str.value;
+
+calc.value = "";
+
+while( i < tmp.length ){
+	var key = tmp.charAt(i);
+	switch( key ){
+		case '>' :latest = 0; pos++ ; break;
+		case '<' :latest = 0; pos-- ; break;
+		case '.' :
+			latest = 0;
+			if(!memory[pos])
+				memory[pos]=0;
+			calc.value += String.fromCharCode(memory[pos]);
+			break;
+		case '+' :
+			if(!memory[pos])
+				memory[pos]=0;
+			memory[pos]++;
+			latest = 1;
+			break;
+		case '*' :
+			if(!memory[pos])
+				memory[pos]=0;
+			memory[pos] += latest;
+			latest *= 2;
+			break;
+		case '-' :
+			if(!memory[pos])
+				memory[pos]=0;
+			memory[pos]-- ;
+			latest = -1;
+			break;
+		case '[' :
+			latest = 0;
+			if(!memory[pos])
+				memory[pos]=0;
+			if(memory[pos]==0){
+				var j = i+1;
+				while(j<tmp.length){
+					if( tmp.charAt(j) === ']' ){
+						i=j;
+						break;
+					}
+					j++;
+				}
+			}
+			break;
+		case ']' :
+			latest = 0;
+			if(!memory[pos])
+				memory[pos]=0;
+			if(memory[pos]!=0){
+				var j = i-1;
+				while(j>0){
+					if( tmp.charAt(j) === '[' ){
+						i=j; break;
+					}
+					j--;
+				}
+			}
+			break;
+		}
+		i++;
+	}
+
+	var strPt = "";
+	strPt += "<table border=\"1\"><caption>ポインタの値</caption>";
+
+	for (var k=0 ; k<2 ; k++){
+		strPt += "<tr>";
+		for (var l=0 ; l<10 ; l++){
+			strPt += "<td align=\"center\">p["+k+l+"]</td>";
+		}
+		strPt += "</tr><tr>";
+		for (var l=0 ; l<10 ; l++){
+			if(memory[l+k*10]==0){
+				strPt += "<td align=\"center\">"+memory[l+k*10]+"</td>";
+			}else if(!memory[l+k*10]){
+				strPt += "<td align=\"center\"> - </td>";
+			}else{
+				strPt += "<td align=\"center\">"+memory[l+k*10]+"</td>";
+			}
+		}
+		strPt += "</tr>";
+	}
+	document.getElementById("pt").innerHTML= strPt + "</table>";
+}
+</script>
+</head>
+<body>
+ソース：<br>
+<div>
+<textarea id="src" name="src" cols=100 rows=8>
++++++++++[>++++++++>+++++++++++>+++++<<<-]>.>++.+++++++..+
+++.>-.------------.<++++++++.--------.+++.------.--------.>+.
+</textarea>
+</div>
+<input type="button" value="   実行   " onClick="interp()">
+<input type="button" value="   クリア   " onClick="clearSrc()">
+<br><br>
+
+実行結果：<br>
+<textarea id="result" name="result" cols=100 rows=8>
+</textarea><br>
+</div>
+<p id="pt"></p>
+<table border="1">
+<caption>命令一覧</caption>
+<tr><th>　　　>　　　</th><td>ポインタを一つ進める。</td></tr>
+<tr><th><</th><td>ポインタを一つ戻す。</td></tr>
+<tr><th>.</th><td>現在ポインタが指している値を出力する。</td></tr>
+<tr><th>+</th><td>現在ポインタが指している値を1増やす（インクリメント）。</td></tr>
+<tr><th>-</th><td>現在ポインタが指している値を1減らす（デクリメント）。</td></tr>
+<tr><th>*</th><td>直前のポインタ値の増減を２倍にする。</td></tr>
+<tr><th>[</th><td>現在ポインタが指している値が0であれば対応する「）」にジャンプする。</td></tr>
+<tr><th>]</th><td>現在ポインタが指している値が0でなければ対応する「（」にジャンプする。</td></tr>
+</table>
+</body>
+</html>
